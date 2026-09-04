@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+/* Design tokens.
+   `pitch-*` — in-app screens (green, mirrors the kickr Flutter app).
+   `ink / paper / gold / wine / cream` — the marketing / landing surface
+   (light + purple theme). Names kept for stability; `gold`/`wine` now carry
+   the violet + magenta accents, and `cream*` are dark text on the light
+   surface. */
+@theme {
+  --color-pitch-50: #f0fdf4;
+  --color-pitch-100: #dcfce7;
+  --color-pitch-500: #22c55e;
+  --color-pitch-600: #16a34a;
+  --color-pitch-700: #15803d;
+
+  --color-ink: #141518; /* headline near-black */
+  --color-ink-2: #2b2d33; /* secondary dark */
+  --color-paper: #ffffff; /* light hero surface */
+  --color-gold: #a92fe0; /* primary purple accent */
+  --color-gold-dim: #7b2ff7; /* violet accent */
+  --color-wine: #c13ce0; /* strong magenta (waves / CTA) */
+  --color-wine-lt: #ead4f7; /* pale lavender */
+  --color-cream: #141518; /* headline text on light */
+  --color-cream-dim: #6b7280; /* muted body text on light */
+
+  --font-sans:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
