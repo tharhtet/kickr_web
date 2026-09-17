@@ -20,7 +20,7 @@ export default function LandingNav() {
           </nav> */}
 
           <Link
-            to="/profile"
+            to="/login"
             className="rounded-xl bg-[linear-gradient(120deg,#c840e8,#8b2fe0)] px-7 py-3 text-[0.8rem] font-bold uppercase tracking-[0.12em] text-white shadow-[0_16px_32px_-16px_rgba(123,47,247,0.7)] transition hover:brightness-105"
           >
             Log in

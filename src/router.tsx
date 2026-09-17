@@ -13,7 +13,6 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      { path: 'profile', element: <ProfilePage /> },
       { path: 'privacy', element: <PrivacyPage /> },
       // Another user's public profile — GET /users/:id/profile.
       // { path: 'u/:userId', element: <PublicProfilePage /> },

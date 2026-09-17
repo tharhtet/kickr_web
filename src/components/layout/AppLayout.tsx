@@ -14,15 +14,11 @@ export default function AppLayout() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-4xl items-center px-4 py-3">
           <NavLink to="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="kickr" className="h-6 w-6" />
-            <span className="text-base font-semibold text-ink">kickr</span>
+            <img src="/logo.png" alt="kickr" className="h-8" />
           </NavLink>
           <nav className="ml-auto flex items-center gap-1">
             <NavLink to="/" end className={linkClass}>
               Home
-            </NavLink>
-            <NavLink to="/profile" className={linkClass}>
-              Profile
             </NavLink>
             <NavLink to="/privacy" className={linkClass}>
               Privacy
