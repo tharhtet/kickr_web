@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 
-const LINKS = [{ label: 'Home', href: '#top' }];
-
 export default function LandingNav() {
   return (
     <header className="absolute inset-x-0 top-0 z-50">

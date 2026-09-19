@@ -9,28 +9,6 @@ const SLIDES = [
 
 const SLIDE_INTERVAL = 4000;
 
-/** Faint topographic contour lines drifting across the hero background. */
-function HeroContours() {
-  return (
-    <svg
-      className="pointer-events-none absolute inset-0 z-[1] h-full w-full"
-      viewBox="0 0 1440 900"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-    >
-      {[0, 46, 92, 138, 184, 230, 276, 322].map((dy) => (
-        <path
-          key={dy}
-          d={`M-40,${180 + dy} C260,${110 + dy} 520,${250 + dy} 820,${190 + dy} C1080,${140 + dy} 1280,${240 + dy} 1500,${170 + dy}`}
-          fill="none"
-          stroke="rgba(123,47,247,0.06)"
-          strokeWidth="1.5"
-        />
-      ))}
-    </svg>
-  );
-}
-
 /** Layered violet / magenta waves sweeping up the bottom-right of the hero. */
 function HeroWaves() {
   return (
@@ -157,8 +135,6 @@ export default function Hero() {
       id="top"
       className="relative flex h-full flex-col justify-center overflow-hidden bg-[radial-gradient(120%_120%_at_15%_0%,#ffffff_0%,#f7f3fb_55%,#f2ecf9_100%)] pb-16"
     >
-      {/* <HeroContours /> */}
-
       <div className="relative z-[2] mx-auto grid max-w-[1180px] items-center gap-10 px-8 md:grid-cols-[8fr_2fr]">
         <div>
           <h1 className="max-w-[13ch] text-[clamp(2.5rem,5vw,4rem)] font-light leading-[1.12] text-ink">
