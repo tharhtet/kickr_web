@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function LandingNav() {
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
+    <header className="relative inset-x-0 top-0 z-50 md:absolute">
       <div className="mx-auto flex max-w-[1180px] items-center justify-between px-8 py-5">
         <Link to="/" className="flex items-center">
           <img src="/logo.png" alt="kickr" className="h-12 w-auto" />

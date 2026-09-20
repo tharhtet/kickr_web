@@ -8,9 +8,9 @@ import SiteFooter from './components/SiteFooter';
  */
 export default function HomePage() {
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden bg-paper text-ink">
+    <div className="relative flex min-h-screen flex-col overflow-y-auto bg-paper text-ink md:h-screen md:overflow-hidden">
       <LandingNav />
-      <main className="min-h-0 flex-1 overflow-hidden">
+      <main className="flex-1 md:min-h-0 md:overflow-hidden">
         <Hero />
       </main>
       <SiteFooter />

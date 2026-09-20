@@ -71,7 +71,7 @@ function PhoneSlider() {
   }, []);
 
   return (
-    <div className="relative z-[3] flex flex-col items-center gap-6">
+    <div className="relative z-[3] flex flex-col items-center gap-3">
       <div
         className="relative h-[510px] w-[242px] rounded-[50px] bg-[linear-gradient(145deg,#3b4048,#1b1e23_45%,#2c3038)] p-[3px] shadow-[0_50px_90px_-30px_rgba(11,15,25,0.7)]"
         aria-roledescription="carousel"
@@ -136,10 +136,10 @@ export default function Hero() {
       className="relative flex h-full flex-col justify-center overflow-hidden bg-[radial-gradient(120%_120%_at_15%_0%,#ffffff_0%,#f7f3fb_55%,#f2ecf9_100%)] pb-16"
     >
       <div className="relative z-[2] mx-auto grid max-w-[1180px] items-center gap-10 px-8 md:grid-cols-[8fr_2fr]">
-        <div>
-          <h1 className="max-w-[13ch] text-[clamp(2.5rem,5vw,4rem)] font-light leading-[1.12] text-ink">
+        <div className="min-w-0">
+          <h1 className="mt-8 max-w-[13ch] text-[clamp(2.5rem,5vw,4rem)] font-light leading-[1.35] text-ink md:mt-0 md:leading-[1.12]">
             Every{' '}
-            <span className="font-semibold italic text-gold">
+            <span className="inline-block mt-2 font-semibold italic text-gold md:mt-0">
               football event
             </span>{' '}
             managed in one place
@@ -154,7 +154,7 @@ export default function Hero() {
           <StoreButtons className="mt-10" variant="gold" />
         </div>
 
-        <div className="flex translate-y-6 justify-center md:justify-end  pt-12">
+        <div className="flex translate-y-6 justify-center md:justify-end pt-6 md:pt-12">
           <PhoneSlider />
         </div>
       </div>

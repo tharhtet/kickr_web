@@ -20,8 +20,8 @@ const SOCIALS: Social[] = [
 
 export default function SiteFooter() {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-40">
-      <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-8 py-4 text-[0.82rem] text-white/70">
+    <footer className="relative inset-x-0 bottom-0 z-40 bg-ink md:absolute md:bg-transparent">
+      <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-4 px-8 py-4 text-[0.82rem] text-white/70">
         <p>&copy; {new Date().getFullYear()} kickr. All rights reserved.</p>
 
         <div className="flex items-center gap-3">
