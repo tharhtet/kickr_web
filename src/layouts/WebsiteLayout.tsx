@@ -8,7 +8,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-slate-600 hover:bg-slate-100',
   ].join(' ');
 
-export default function AppLayout() {
+export default function WebsiteLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white">

@@ -1,6 +1,6 @@
-import Hero from './components/Hero';
-import LandingNav from './components/LandingNav';
-import SiteFooter from './components/SiteFooter';
+import Hero from '@/components/website/Hero';
+import LandingNav from '@/components/website/LandingNav';
+import SiteFooter from '@/components/website/SiteFooter';
 
 /**
  * Marketing / landing home screen. Standalone chrome (its own nav),

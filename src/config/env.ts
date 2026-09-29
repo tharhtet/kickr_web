@@ -10,11 +10,14 @@ function readBool(value: string | undefined, fallback: boolean): boolean {
 }
 
 export const env = {
-  /** Base URL of the kickr NestJS backend (no trailing slash). */
-  apiBaseUrl: (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000').replace(
-    /\/+$/,
-    '',
-  ),
+  /**
+   * Base URL of the kickr NestJS backend (no trailing slash). In dev this is
+   * the Vite proxy path (see vite.config.ts), which forwards to
+   * VITE_API_BASE_URL and sidesteps CORS.
+   */
+  apiBaseUrl: import.meta.env.DEV
+    ? '/api'
+    : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000').replace(/\/+$/, ''),
   /** When true, the API layer resolves from local fixtures instead of HTTP. */
   useMocks: readBool(import.meta.env.VITE_USE_MOCKS, import.meta.env.DEV),
 } as const;

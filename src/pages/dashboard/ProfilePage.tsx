@@ -1,4 +1,4 @@
-import { useMyProfile } from './hooks';
+import { useMyProfile } from '@/services/profile/hooks';
 
 /**
  * Placeholder Profile screen.
@@ -6,7 +6,7 @@ import { useMyProfile } from './hooks';
  * It only proves the wiring — router → react-query hook → typed mock API.
  * Replace the body with the real header / stats card / tabs port of
  * `kickr/lib/features/profile`. Building blocks to add under
- * `src/features/profile/components/`:
+ * `src/components/profile/`:
  *   - ProfileHeader (avatar, name, @username, edit + QR actions)
  *   - ProfileStatsCard (matchesPlayed / wins / mvpCount / avgRating)
  *   - ProfileTabs (events / groups / history)
