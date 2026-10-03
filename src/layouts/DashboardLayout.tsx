@@ -88,7 +88,7 @@ function Sidebar({
 }
 
 /**
- * In-app dashboard chrome — sidebar (`pitch-*` green, mirrors the kickr
+ * In-app dashboard chrome — sidebar (`pitch-*` purple, mirrors the kickr
  * Flutter app) + topbar, sharing the `pitch` theme across dashboard,
  * tournaments, group list and settings routes. Redirects to `/login` when
  * there's no stored access token.
