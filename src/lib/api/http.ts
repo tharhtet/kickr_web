@@ -21,8 +21,12 @@ interface RequestOptions {
   body?: BodyInit;
   query?: Query;
   signal?: AbortSignal;
-  /** Set false to skip the Authorization header. Defaults to true. */
-  auth?: boolean;
+  /**
+   * `true` (default): send the token and send the visitor to /login when the
+   * session can't be refreshed. `'optional'`: send the token if there is one,
+   * but never redirect — for public pages anyone can open. `false`: no token.
+   */
+  auth?: boolean | 'optional';
 }
 
 /** Refresh this long before the access token actually expires. */
@@ -41,8 +45,8 @@ let refreshing: Promise<boolean> | null = null;
 
 /**
  * `POST /auth/refresh` with the stored `{ sub, refreshToken }` and saves the
- * new access token. Resolves false (and ends the session) when the refresh
- * token is missing or rejected.
+ * new access token. Resolves false when the refresh token is missing or
+ * rejected; a rejected one also clears the stored session.
  */
 function refreshSession(): Promise<boolean> {
   refreshing ??= (async () => {
@@ -61,7 +65,7 @@ function refreshSession(): Promise<boolean> {
       return true;
     } catch (err) {
       // Network blips keep the session; a rejected refresh token ends it.
-      if (err instanceof ApiError) endSession();
+      if (err instanceof ApiError) clearSession();
       return false;
     }
   })().finally(() => {
@@ -70,9 +74,11 @@ function refreshSession(): Promise<boolean> {
   return refreshing;
 }
 
-function endSession(): void {
-  clearSession();
-  if (window.location.pathname !== '/login') window.location.assign('/login');
+/** Sends the visitor to /login once the session is gone. */
+function redirectIfSignedOut(): void {
+  if (!getRefreshToken() && window.location.pathname !== '/login') {
+    window.location.assign('/login');
+  }
 }
 
 function isTokenExpiring(): boolean {
@@ -112,12 +118,20 @@ export async function request<T>(
   const { auth = true } = options;
   if (!auth) return send<T>(path, options);
 
-  if (isTokenExpiring()) await refreshSession();
+  const hadSession = getRefreshToken() !== null;
+  // A session that was rejected mid-request — only true sign-in-required
+  // calls bounce to /login.
+  const onRefreshFailed = () => {
+    if (auth === true && hadSession) redirectIfSignedOut();
+  };
+
+  if (isTokenExpiring() && !(await refreshSession())) onRefreshFailed();
   try {
     return await send<T>(path, options);
   } catch (err) {
-    if (err instanceof ApiError && err.status === 401 && (await refreshSession())) {
-      return send<T>(path, options);
+    if (err instanceof ApiError && err.status === 401 && getRefreshToken()) {
+      if (await refreshSession()) return send<T>(path, options);
+      onRefreshFailed();
     }
     throw err;
   }

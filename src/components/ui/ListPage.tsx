@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
   type ComponentType,
   type FormEvent,
@@ -9,7 +10,7 @@ import { IconPencil, IconPlus, IconTrash, IconX } from '@/components/ui/icons';
 
 export interface ListColumn<T> {
   header: string;
-  render: (row: T) => ReactNode;
+  render: (row: T, index: number) => ReactNode;
   className?: string;
   /** Tailwind width class for the column, e.g. `w-16`. */
   width?: string;
@@ -35,16 +36,22 @@ interface ListPageProps<T> {
   error?: string | null;
   rowKey: (row: T) => string;
   columns: ListColumn<T>[];
-  fields: ListField[];
-  onAdd: (values: Record<string, string>) => void;
+  fields?: ListField[];
+  onAdd?: (values: Record<string, string>) => void;
+  /** Replaces the built-in add modal, e.g. for forms `fields` can't express. */
+  onAddClick?: () => void;
   /** Enables the per-row edit button; `toValues` prefills the edit form. */
   onEdit?: (row: T, values: Record<string, string>) => void;
   toValues?: (row: T) => Record<string, string>;
+  /** Replaces the built-in edit modal; also enables the per-row edit button. */
+  onEditClick?: (row: T) => void;
+  /** Fields for the edit form when they differ from `fields`. */
+  editFields?: ListField[];
   /** Enables the per-row delete button (asks for confirmation first). */
   onDelete?: (row: T) => void;
 }
 
-const inputClass =
+export const inputClass =
   'w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-pitch-500 focus:ring-2 focus:ring-pitch-500/15';
 
 /**
@@ -61,15 +68,19 @@ export default function ListPage<T>({
   error,
   rowKey,
   columns,
-  fields,
+  fields = [],
   onAdd,
+  onAddClick,
   onEdit,
+  onEditClick,
   toValues,
+  editFields,
   onDelete,
 }: ListPageProps<T>) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<T | null>(null);
-  const hasActions = Boolean(onEdit || onDelete);
+  const canEdit = Boolean(onEdit || onEditClick);
+  const hasActions = canEdit || Boolean(onDelete);
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -77,7 +88,7 @@ export default function ListPage<T>({
         <h1 className="text-2xl font-semibold text-ink">{title}</h1>
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => (onAddClick ? onAddClick() : setOpen(true))}
           className="flex items-center gap-1.5 rounded-xl bg-pitch-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-pitch-600/30 transition hover:bg-pitch-700"
         >
           <IconPlus className="h-4 w-4" />
@@ -120,7 +131,7 @@ export default function ListPage<T>({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {rows.map((row) => (
+                {rows.map((row, index) => (
                   <tr key={rowKey(row)}>
                     {columns.map((col) => (
                       <td
@@ -130,16 +141,18 @@ export default function ListPage<T>({
                           col.className ?? 'text-slate-500',
                         ].join(' ')}
                       >
-                        {col.render(row)}
+                        {col.render(row, index)}
                       </td>
                     ))}
                     {hasActions && (
                       <td className="py-3">
                         <div className="flex justify-end gap-1">
-                          {onEdit && (
+                          {canEdit && (
                             <button
                               type="button"
-                              onClick={() => setEditing(row)}
+                              onClick={() =>
+                                onEditClick ? onEditClick(row) : setEditing(row)
+                              }
                               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-pitch-600"
                               aria-label={`Edit ${itemLabel}`}
                               title="Edit"
@@ -182,7 +195,7 @@ export default function ListPage<T>({
           fields={fields}
           onClose={() => setOpen(false)}
           onSubmit={(values) => {
-            onAdd(values);
+            onAdd?.(values);
             setOpen(false);
           }}
         />
@@ -191,7 +204,7 @@ export default function ListPage<T>({
       {editing && onEdit && (
         <AddModal
           title={`Edit ${itemLabel}`}
-          fields={fields}
+          fields={editFields ?? fields}
           initialValues={toValues?.(editing)}
           onClose={() => setEditing(null)}
           onSubmit={(values) => {
@@ -204,7 +217,7 @@ export default function ListPage<T>({
   );
 }
 
-function AddModal({
+export function AddModal({
   title,
   fields,
   initialValues,
@@ -217,6 +230,14 @@ function AddModal({
   onClose: () => void;
   onSubmit: (values: Record<string, string>) => void;
 }) {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
@@ -246,7 +267,7 @@ function AddModal({
         </div>
 
         <div className="mt-5 space-y-4">
-          {fields.map((f) => (
+          {fields.map((f, i) => (
             <label key={f.name} className="block">
               <span className="mb-1.5 block text-sm font-medium text-slate-600">
                 {f.label}
@@ -254,6 +275,7 @@ function AddModal({
               {f.type === 'textarea' ? (
                 <textarea
                   name={f.name}
+                  autoFocus={i === 0}
                   defaultValue={initialValues?.[f.name]}
                   required={f.required}
                   placeholder={f.placeholder}
@@ -276,6 +298,7 @@ function AddModal({
               ) : (
                 <input
                   name={f.name}
+                  autoFocus={i === 0}
                   defaultValue={initialValues?.[f.name]}
                   required={f.required}
                   placeholder={f.placeholder}

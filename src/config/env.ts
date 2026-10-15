@@ -13,11 +13,13 @@ export const env = {
   /**
    * Base URL of the kickr NestJS backend (no trailing slash). In dev this is
    * the Vite proxy path (see vite.config.ts), which forwards to
-   * VITE_API_BASE_URL and sidesteps CORS.
+   * VITE_API_BASE_URL from .env.development — the backend's CORS doesn't
+   * allow the dev server's origin, so the browser must stay same-origin.
+   * Builds call VITE_API_BASE_URL (.env.production) directly.
    */
   apiBaseUrl: import.meta.env.DEV
     ? '/api'
-    : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000').replace(/\/+$/, ''),
+    : (import.meta.env.VITE_API_BASE_URL ?? 'https://api.kickrsport.com').replace(/\/+$/, ''),
   /** When true, the API layer resolves from local fixtures instead of HTTP. */
   useMocks: readBool(import.meta.env.VITE_USE_MOCKS, import.meta.env.DEV),
 } as const;

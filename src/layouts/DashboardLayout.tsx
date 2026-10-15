@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useLogout } from '@/services/auth';
+import { useMyProfile } from '@/services/profile';
 import { getAccessToken } from '@/lib/api/authToken';
 import {
   IconBall,
@@ -9,6 +10,7 @@ import {
   IconLogout,
   IconMapPin,
   IconMenu,
+  IconPhone,
   IconSearch,
   IconSettings,
   IconTrophy,
@@ -21,7 +23,8 @@ const NAV_ITEMS = [
   { to: '/tournaments', label: 'Tournaments', icon: IconTrophy, end: false },
   { to: '/groups', label: 'Group List', icon: IconUsers, end: false },
   { to: '/sport-types', label: 'Sport Types', icon: IconBall, end: false },
-  { to: '/regions', label: 'Regions', icon: IconMapPin, end: false },
+  { to: '/countries', label: 'Countries', icon: IconMapPin, end: false },
+  { to: '/app-config', label: 'App Config', icon: IconPhone, end: false },
   { to: '/settings', label: 'Settings', icon: IconSettings, end: false },
 ] as const;
 
@@ -87,19 +90,96 @@ function Sidebar({
   );
 }
 
+/** Header avatar — opens a dropdown with the logout action. */
+function ProfileMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const logout = useLogout();
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-pitch-100 text-sm font-semibold text-pitch-700 transition hover:ring-2 hover:ring-pitch-500/20"
+        aria-label="Account menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        H
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              logout();
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            <IconLogout className="h-4 w-4 shrink-0" />
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /**
- * In-app dashboard chrome — sidebar (`pitch-*` purple, mirrors the kickr
- * Flutter app) + topbar, sharing the `pitch` theme across dashboard,
- * tournaments, group list and settings routes. Redirects to `/login` when
- * there's no stored access token.
+ * Gates the dashboard: redirects to `/login` when there's no stored access
+ * token, and to the home page when the account isn't a superadmin.
  */
 export default function DashboardLayout() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
   if (!getAccessToken()) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
+  return <SuperadminOnly />;
+}
+
+function SuperadminOnly() {
+  const me = useMyProfile();
+
+  if (me.isPending) {
+    return <div className="min-h-screen bg-slate-50" aria-busy="true" />;
+  }
+  if (me.data?.role !== 'superadmin') {
+    return <Navigate to="/" replace />;
+  }
+  return <DashboardShell />;
+}
+
+/**
+ * In-app dashboard chrome — sidebar (`pitch-*` purple, mirrors the kickr
+ * Flutter app) + topbar, sharing the `pitch` theme across dashboard,
+ * tournaments, group list and settings routes.
+ */
+function DashboardShell() {
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -154,9 +234,7 @@ export default function DashboardLayout() {
             >
               <IconBell className="h-5 w-5" />
             </button>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pitch-100 text-sm font-semibold text-pitch-700">
-              H
-            </div>
+            <ProfileMenu />
           </div>
         </header>
 

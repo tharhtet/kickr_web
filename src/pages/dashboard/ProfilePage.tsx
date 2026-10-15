@@ -70,11 +70,11 @@ export default function ProfilePage() {
           <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-slate-500">Preferred sport</dt>
-              <dd className="text-ink">{user.preferredSport ?? '—'}</dd>
+              <dd className="text-ink">{user.preferredSport?.join(', ') || '—'}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-500">Position</dt>
-              <dd className="text-ink">{user.footballPosition ?? '—'}</dd>
+              <dd className="text-ink">{user.footballPosition?.join(', ') || '—'}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-500">City</dt>

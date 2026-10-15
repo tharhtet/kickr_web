@@ -15,6 +15,14 @@ let refreshToken: string | null = readInitial(REFRESH_KEY);
 let sub: string | null = readInitial(SUB_KEY);
 let expiresAt: number | null = Number(readInitial(EXPIRES_AT_KEY)) || null;
 
+/** Notified whenever the access token changes (login / logout / refresh). */
+const listeners = new Set<() => void>();
+
+export function subscribeSession(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 function readInitial(key: string): string | null {
   try {
     return localStorage.getItem(key);
@@ -39,6 +47,7 @@ export function getAccessToken(): string | null {
 export function setAccessToken(next: string | null): void {
   accessToken = next;
   write(ACCESS_KEY, next);
+  listeners.forEach((l) => l());
 }
 
 export function getRefreshToken(): string | null {

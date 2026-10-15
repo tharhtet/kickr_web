@@ -8,6 +8,7 @@ export const currentUserFixture: User = {
   displayName: 'Hein',
   email: 'hein@example.com',
   phoneNumber: '+959770000000',
+  role: 'superadmin',
   height: 176,
   weight: 71,
   profileImage: '',
@@ -17,8 +18,8 @@ export const currentUserFixture: User = {
   city: 'yangon',
   dateOfBirth: '1996-04-12',
   sports: ['football', 'futsal'],
-  preferredSport: 'football',
-  footballPosition: 'forward',
+  preferredSport: ['football'],
+  footballPosition: ['forward'],
   privacy: {
     profileVisibility: 'public',
     showStats: true,

@@ -1,5 +1,7 @@
 type Variant = 'gold' | 'cream';
 
+export const APP_STORE_URL = 'https://apps.apple.com/app/id6808122134';
+
 /**
  * Google Play + App Store download buttons.
  * Mobile: stacked full-width (Play on top, App Store on bottom). Desktop (sm+): side by side.
@@ -40,7 +42,9 @@ export default function StoreButtons({
         </span>
       </a>
       <a
-        href="#"
+        href={APP_STORE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 shadow-[0_12px_28px_-12px_rgba(11,15,25,0.45)] transition sm:justify-start sm:gap-3 sm:px-6 sm:py-3 ${appStoreClass}`}
       >
         <svg className="size-5 flex-none sm:size-6" viewBox="0 0 24 24" fill="currentColor">

@@ -18,6 +18,10 @@ export type FootballPosition = (typeof FOOTBALL_POSITIONS)[number];
 export const PROFILE_VISIBILITY = ['public', 'members', 'private'] as const;
 export type ProfileVisibility = (typeof PROFILE_VISIBILITY)[number];
 
+/** Platform-wide roles — unrelated to per-group member roles. */
+export const USER_ROLES = ['user', 'superadmin'] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
 export const SPORT_TYPES = ['football', 'futsal', 'padel', 'basketball'] as const;
 export type SportType = (typeof SPORT_TYPES)[number];
 
@@ -43,6 +47,12 @@ export interface MatchHistoryItem {
   locationId?: { _id: string; name: string; lat: number; lng: number } | null;
 }
 
+export interface FavouriteTeam {
+  _id: string;
+  name: string;
+  sortOrder?: number;
+}
+
 /** Shape returned by `GET /users/me`. */
 export interface User {
   _id: string;
@@ -51,6 +61,8 @@ export interface User {
   displayName?: string;
   email?: string;
   phoneNumber?: string;
+  /** Only 'superadmin' may open the dashboard. */
+  role: UserRole;
   height?: number;
   weight?: number;
   profileImage?: string;
@@ -59,9 +71,14 @@ export interface User {
   country?: string;
   city?: string;
   dateOfBirth?: string;
-  sports: SportType[];
-  preferredSport?: SportType;
-  footballPosition?: FootballPosition;
+  /** Sport-type values from `GET /configuration`. */
+  sports: string[];
+  preferredSport?: string[];
+  footballPosition?: FootballPosition[];
+  /** Id of a club from `GET /global-football-teams`. */
+  favouriteTeamId?: string | null;
+  /** `favouriteTeamId` resolved by `GET /users/me`; null when unset. */
+  favouriteTeam?: FavouriteTeam | null;
   privacy?: Privacy;
   inviteCode?: string;
   highlightVideos: string[];
@@ -71,11 +88,10 @@ export interface User {
 }
 
 /** Shape returned by `GET /users/:id/profile` — a public subset plus stats. */
-export interface PublicProfile
-  extends Partial<Omit<User, '_id' | 'name' | 'sports'>> {
+export interface PublicProfile extends Partial<Omit<User, '_id' | 'name' | 'sports'>> {
   _id: string;
   name: string;
-  sports: SportType[];
+  sports: string[];
   statistics?: UserStatistics;
   matchHistory?: MatchHistoryItem[];
 }
@@ -98,8 +114,11 @@ export interface UpdateProfileInput {
   country?: string;
   city?: string;
   dateOfBirth?: string;
-  sports?: SportType[];
-  preferredSport?: SportType;
-  footballPosition?: FootballPosition;
+  /** Each array replaces the stored list — send it whole. */
+  sports?: string[];
+  preferredSport?: string[];
+  footballPosition?: FootballPosition[];
+  /** null clears it. */
+  favouriteTeamId?: string | null;
   privacy?: Partial<Privacy>;
 }

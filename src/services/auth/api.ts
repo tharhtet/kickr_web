@@ -2,7 +2,7 @@ import { env } from '@/config/env';
 import { request } from '@/lib/api/http';
 import { delay } from '@/lib/api/mock';
 import { ApiError } from '@/lib/api/errors';
-import type { LoginInput, LoginResponse } from './types';
+import type { LoginInput, LoginResponse, SignupInput, SignupResponse } from './types';
 
 /**
  * Typed client for the kickr backend `auth` endpoints.
@@ -26,6 +26,11 @@ async function mockLogin(input: LoginInput): Promise<LoginResponse> {
   };
 }
 
+async function mockSignup(): Promise<SignupResponse> {
+  await delay(500);
+  return { message: 'Signup successful. You can now log in.' };
+}
+
 export const authApi = {
   /** POST /auth/login */
   login(input: LoginInput): Promise<LoginResponse> {
@@ -33,6 +38,17 @@ export const authApi = {
     return env.useMocks
       ? mockLogin(input)
       : request<LoginResponse>('/auth/login', {
+          method: 'POST',
+          json: input,
+          auth: false,
+        });
+  },
+
+  /** POST /auth/signup — auto-confirmed, so the caller can log in straight away. */
+  signup(input: SignupInput): Promise<SignupResponse> {
+    return env.useMocks
+      ? mockSignup()
+      : request<SignupResponse>('/auth/signup', {
           method: 'POST',
           json: input,
           auth: false,

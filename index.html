@@ -10,6 +10,15 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- iOS Safari smart app banner; app-argument passes the current URL (e.g. /event/:eventId) to the app. -->
+    <script>
+      (function () {
+        var meta = document.createElement('meta');
+        meta.name = 'apple-itunes-app';
+        meta.content = 'app-id=6808122134, app-argument=' + window.location.href;
+        document.head.appendChild(meta);
+      })();
+    </script>
     <title>KickR Sport: Event Management</title>
   </head>
   <body>
