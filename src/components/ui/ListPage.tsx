@@ -49,6 +49,10 @@ interface ListPageProps<T> {
   editFields?: ListField[];
   /** Enables the per-row delete button (asks for confirmation first). */
   onDelete?: (row: T) => void;
+  /** Rendered on the right of the title row, e.g. a search field. */
+  toolbar?: ReactNode;
+  /** Rendered under the table, e.g. pagination controls. */
+  footer?: ReactNode;
 }
 
 export const inputClass =
@@ -76,6 +80,8 @@ export default function ListPage<T>({
   toValues,
   editFields,
   onDelete,
+  toolbar,
+  footer,
 }: ListPageProps<T>) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<T | null>(null);
@@ -86,14 +92,19 @@ export default function ListPage<T>({
     <div className="mx-auto max-w-7xl">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-ink">{title}</h1>
-        <button
-          type="button"
-          onClick={() => (onAddClick ? onAddClick() : setOpen(true))}
-          className="flex items-center gap-1.5 rounded-xl bg-pitch-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-pitch-600/30 transition hover:bg-pitch-700"
-        >
-          <IconPlus className="h-4 w-4" />
-          Add {itemLabel}
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {toolbar}
+          {(onAdd || onAddClick) && (
+            <button
+              type="button"
+              onClick={() => (onAddClick ? onAddClick() : setOpen(true))}
+              className="flex items-center gap-1.5 rounded-xl bg-pitch-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-pitch-600/30 transition hover:bg-pitch-700"
+            >
+              <IconPlus className="h-4 w-4" />
+              Add {itemLabel}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
@@ -185,6 +196,7 @@ export default function ListPage<T>({
                 ))}
               </tbody>
             </table>
+            {footer}
           </div>
         )}
       </div>

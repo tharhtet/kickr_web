@@ -84,3 +84,38 @@ export interface GroupPhoto {
 export interface GroupPhotosResponse {
   photos: GroupPhoto[];
 }
+
+/** An offset page — `page` is 1-based, `total` counts every matching row. */
+export interface Page<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/** One row of `GET /groups/group-all` — the full group document (superadmin view). */
+export interface AdminGroup {
+  _id: string;
+  name: string;
+  handle?: string;
+  description?: string;
+  logo?: string;
+  sportType?: string;
+  country?: string;
+  city?: string;
+  isPrivate: boolean;
+  maxPlayers: number;
+  ownerId: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ListAllGroupsParams {
+  /** 1-based page number. Backend default is 1. */
+  page?: number;
+  /** Page size, 1-50. Backend default is 20. */
+  limit?: number;
+  /** Free-text search; empty / omitted lists every group. */
+  q?: string;
+}

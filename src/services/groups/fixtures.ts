@@ -1,4 +1,9 @@
-import type { GroupDetail, GroupMember, GroupPhoto, GroupMemberRole } from './types';
+import type {
+  GroupDetail,
+  GroupMember,
+  GroupPhoto,
+  GroupMemberRole,
+} from './types';
 
 /** Mock group returned by the mocked `GET /groups/:id` for any id. */
 export const groupDetailFixture: GroupDetail = {
@@ -31,15 +36,17 @@ const MEMBERS: [string, GroupMemberRole][] = [
 ];
 
 /** Mock roster for `GET /groups/:id/members`. */
-export const groupMembersFixture: GroupMember[] = MEMBERS.map(([name, role], i) => ({
-  _id: `gm${i + 1}`,
-  groupId: groupDetailFixture._id,
-  userId: { _id: `u${i + 1}`, name },
-  role,
-  level: 1,
-  status: 'approved',
-  joinedAt: `2026-0${8 + Math.min(i, 1)}-0${2 + i}T00:00:00.000Z`,
-}));
+export const groupMembersFixture: GroupMember[] = MEMBERS.map(
+  ([name, role], i) => ({
+    _id: `gm${i + 1}`,
+    groupId: groupDetailFixture._id,
+    userId: { _id: `u${i + 1}`, name },
+    role,
+    level: 1,
+    status: 'approved',
+    joinedAt: `2026-0${8 + Math.min(i, 1)}-0${2 + i}T00:00:00.000Z`,
+  }),
+);
 
 /** Mock gallery for `GET /groups/:id/photos`. */
 export const groupPhotosFixture: GroupPhoto[] = [1, 2, 3].map((n) => ({

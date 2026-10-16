@@ -1,8 +1,20 @@
 import { env } from '@/config/env';
 import { request } from '@/lib/api/http';
 import { clone, delay } from '@/lib/api/mock';
-import { groupDetailFixture, groupMembersFixture, groupPhotosFixture } from './fixtures';
-import type { GroupDetail, GroupMember, GroupPhoto, GroupPhotosResponse } from './types';
+import {
+  groupDetailFixture,
+  groupMembersFixture,
+  groupPhotosFixture,
+} from './fixtures';
+import type {
+  AdminGroup,
+  GroupDetail,
+  GroupMember,
+  GroupPhoto,
+  GroupPhotosResponse,
+  ListAllGroupsParams,
+  Page,
+} from './types';
 
 /**
  * Typed client for the kickr backend `groups` endpoints.
@@ -28,6 +40,42 @@ async function mockPhotos(): Promise<GroupPhoto[]> {
   return clone(groupPhotosFixture);
 }
 
+/** 45 fake groups, newest first, so paging has something to page through. */
+let mockAllGroups: AdminGroup[] = Array.from({ length: 45 }, (_, i) => ({
+  _id: `mock-group-${String(45 - i).padStart(2, '0')}`,
+  name: `${groupDetailFixture.name} ${45 - i}`,
+  handle: `${groupDetailFixture.handle}-${45 - i}`,
+  sportType: i % 3 === 0 ? 'futsal' : 'football',
+  country: 'th',
+  city: 'bangkok',
+  isPrivate: i % 4 === 0,
+  maxPlayers: 22,
+  ownerId: 'u1',
+  createdAt: new Date(Date.UTC(2026, 9, 1) - i * 86_400_000).toISOString(),
+}));
+
+async function mockListAll({
+  page = 1,
+  limit = 20,
+  q,
+}: ListAllGroupsParams): Promise<Page<AdminGroup>> {
+  await delay();
+  const needle = q?.trim().toLowerCase();
+  const matches = needle
+    ? mockAllGroups.filter((g) =>
+        [g.name, g.handle].some((v) => v?.toLowerCase().includes(needle)),
+      )
+    : mockAllGroups;
+  const start = (page - 1) * limit;
+  return clone({
+    items: matches.slice(start, start + limit),
+    total: matches.length,
+    page,
+    limit,
+    totalPages: Math.ceil(matches.length / limit),
+  });
+}
+
 async function mockJoin(): Promise<void> {
   await delay();
 }
@@ -36,7 +84,29 @@ async function mockLeave(): Promise<void> {
   await delay();
 }
 
+async function mockRemove(groupId: string): Promise<void> {
+  await delay();
+  mockAllGroups = mockAllGroups.filter((g) => g._id !== groupId);
+}
+
 export const groupsApi = {
+  /** GET /groups/group-all — every group matching `q`, newest first, one page (superadmin). */
+  listAll(
+    params: ListAllGroupsParams = {},
+    signal?: AbortSignal,
+  ): Promise<Page<AdminGroup>> {
+    return env.useMocks
+      ? mockListAll(params)
+      : request<Page<AdminGroup>>('/groups/group-all', {
+          query: {
+            page: params.page,
+            limit: params.limit,
+            q: params.q?.trim() || undefined,
+          },
+          signal,
+        });
+  },
+
   /** GET /groups/:id */
   get(groupId: string, signal?: AbortSignal): Promise<GroupDetail> {
     return env.useMocks
@@ -51,10 +121,13 @@ export const groupsApi = {
   members(groupId: string, signal?: AbortSignal): Promise<GroupMember[]> {
     return env.useMocks
       ? mockMembers()
-      : request<GroupMember[]>(`/groups/${encodeURIComponent(groupId)}/members`, {
-          auth: 'optional',
-          signal,
-        });
+      : request<GroupMember[]>(
+          `/groups/${encodeURIComponent(groupId)}/members`,
+          {
+            auth: 'optional',
+            signal,
+          },
+        );
   },
 
   /** GET /groups/:id/photos — members only (403 otherwise). */
@@ -89,5 +162,14 @@ export const groupsApi = {
       : request<void>(`/groups/${encodeURIComponent(groupId)}/leave`, {
           method: 'POST',
         });
+  },
+
+  /** DELETE /groups/:id */
+  async remove(groupId: string): Promise<void> {
+    if (env.useMocks) await mockRemove(groupId);
+    else
+      await request<unknown>(`/groups/${encodeURIComponent(groupId)}`, {
+        method: 'DELETE',
+      });
   },
 };

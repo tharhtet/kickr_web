@@ -1,12 +1,33 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { groupsApi } from './api';
+import type { ListAllGroupsParams } from './types';
 
 export const groupsKeys = {
   all: ['groups'] as const,
+  listAll: (params: ListAllGroupsParams) =>
+    [...groupsKeys.all, 'list-all', params] as const,
   detail: (groupId: string) => [...groupsKeys.all, 'detail', groupId] as const,
-  members: (groupId: string) => [...groupsKeys.all, 'members', groupId] as const,
+  members: (groupId: string) =>
+    [...groupsKeys.all, 'members', groupId] as const,
   photos: (groupId: string) => [...groupsKeys.all, 'photos', groupId] as const,
 };
+
+/**
+ * `GET /groups/group-all` — one page; keeps showing the previous page while
+ * the next page / search result loads.
+ */
+export function useAllGroups(params: ListAllGroupsParams) {
+  return useQuery({
+    queryKey: groupsKeys.listAll(params),
+    queryFn: ({ signal }) => groupsApi.listAll(params, signal),
+    placeholderData: keepPreviousData,
+  });
+}
 
 /** `GET /groups/:id` */
 export function useGroup(groupId: string | undefined) {
@@ -63,5 +84,19 @@ export function useLeaveGroup(groupId: string) {
         qc.invalidateQueries({ queryKey: groupsKeys.photos(groupId) }),
         qc.invalidateQueries({ queryKey: ['events', 'group', groupId] }),
       ]),
+  });
+}
+
+/** `DELETE /groups/:id` — refetches the group lists and drops the group's cached detail. */
+export function useDeleteGroup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (groupId: string) => groupsApi.remove(groupId),
+    onSuccess: (_res, groupId) => {
+      qc.removeQueries({ queryKey: groupsKeys.detail(groupId) });
+      return qc.invalidateQueries({
+        queryKey: [...groupsKeys.all, 'list-all'],
+      });
+    },
   });
 }

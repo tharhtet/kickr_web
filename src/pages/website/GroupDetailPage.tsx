@@ -47,7 +47,7 @@ import {
   type GroupPhoto,
 } from '@/services/groups';
 
-type Tab = 'events' | 'members' | 'gallery';
+type Tab = 'events' | 'members' | 'gallery' | 'rules';
 
 /** The backend stores a bare `price` with no currency; events are priced in baht. */
 const PRICE_CURRENCY = 'THB';
@@ -366,6 +366,7 @@ function Tabs({
     { id: 'events', label: 'Events' },
     { id: 'members', label: 'Members' },
     { id: 'gallery', label: 'Gallery' },
+    { id: 'rules', label: 'Rules' },
   ];
   return (
     <div role="tablist" className="mt-8 flex gap-1 overflow-x-auto border-b border-slate-200">
@@ -622,7 +623,21 @@ const TAB_NOUN: Record<Tab, string> = {
   events: 'Events',
   members: 'Members',
   gallery: 'Photos',
+  rules: 'Rules',
 };
+
+function RulesCard({ rules }: { rules: string }) {
+  return (
+    <section className={`${card} p-5`}>
+      <SectionHeader title="Group rules" />
+      {rules.trim() ? (
+        <p className="mt-3 whitespace-pre-line text-sm text-ink-2">{rules}</p>
+      ) : (
+        <p className="mt-3 text-sm text-cream-dim">No rules set for this group yet.</p>
+      )}
+    </section>
+  );
+}
 
 const MEMBER_PERKS: { icon: Icon; label: string }[] = [
   { icon: IconCalendar, label: 'Upcoming events' },
@@ -720,12 +735,6 @@ function AboutCard({ group }: { group: GroupDetail }) {
             </li>
           ))}
       </ul>
-      {group.rules && (
-        <div className="mt-4 border-t border-slate-100 pt-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-cream-dim">Group rules</p>
-          <p className="mt-1 whitespace-pre-line text-sm text-ink-2">{group.rules}</p>
-        </div>
-      )}
     </section>
   );
 }
@@ -883,7 +892,9 @@ function GroupView({ group }: { group: GroupDetail }) {
   const locked = !signedIn || isUnauthorized(upcoming.error) || isUnauthorized(rawMembers.error);
 
   let main: ReactNode;
-  if (locked)
+  // Rules come with `GET /groups/:id` for everyone, so that tab never locks.
+  if (tab === 'rules') main = <RulesCard rules={group.rules ?? ''} />;
+  else if (locked)
     main = <LockedCard group={group} tab={tab} onLogin={openLogin} onSignup={openSignup} />;
   else
     switch (tab) {

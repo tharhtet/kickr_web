@@ -17,9 +17,9 @@ import type {
 
 // --- mock state (module-scoped so edits persist within a session) ------------
 let mockSportTypes: SportType[] = [
-  { _id: '6aad602b494d2afa80f643da', value: 'football', subTypes: ['futsal', 'stadium'], sortOrder: 1, matchProvided: true },
-  { _id: '6aad602b494d2afa80f643db', value: 'futsal', subTypes: [], sortOrder: 2, matchProvided: true },
-  { _id: '6aad602b494d2afa80f643dc', value: 'badminton', subTypes: [], sortOrder: 3, matchProvided: true },
+  { _id: '6aad602b494d2afa80f643da', value: 'football', subTypes: ['futsal', 'stadium'], playerRoles: ['forward', 'winger', 'midfielder', 'defender', 'goalkeeper', 'referee', 'coach'], sortOrder: 1, matchProvided: true },
+  { _id: '6aad602b494d2afa80f643db', value: 'futsal', subTypes: [], playerRoles: ['goalkeeper', 'defender', 'pivot'], sortOrder: 2, matchProvided: true },
+  { _id: '6aad602b494d2afa80f643dc', value: 'badminton', subTypes: [], playerRoles: [], sortOrder: 3, matchProvided: true },
 ];
 
 const slug = (s: string) => s.trim().toLowerCase();
@@ -56,6 +56,7 @@ async function mockCreate(input: CreateSportTypeInput): Promise<SportType> {
     value,
     name: input.name?.trim() || undefined,
     subTypes: [...new Set((input.subTypes ?? []).map(slug))],
+    playerRoles: [...new Set((input.playerRoles ?? []).map(slug))],
     sortOrder:
       input.sortOrder ?? Math.max(0, ...mockSportTypes.map((s) => s.sortOrder)) + 1,
     matchProvided: input.matchProvided ?? true,
@@ -73,6 +74,9 @@ async function mockUpdate(value: string, input: UpdateSportTypeInput): Promise<S
     ...rest,
     name: name === undefined ? sport.name : name.trim() || undefined,
     subTypes: input.subTypes ? [...new Set(input.subTypes.map(slug))] : sport.subTypes,
+    playerRoles: input.playerRoles
+      ? [...new Set(input.playerRoles.map(slug))]
+      : sport.playerRoles,
   });
 }
 

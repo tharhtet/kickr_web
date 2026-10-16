@@ -18,7 +18,7 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const displayName = (sport: SportType) => sport.name || capitalize(sport.value);
 
 /** "Futsal, stadium" → ['futsal', 'stadium'] */
-const parseSubTypes = (s: string) => [
+const parseList = (s: string) => [
   ...new Set(
     s
       .split(',')
@@ -57,6 +57,11 @@ const sortOrderField = {
   label: 'Sort Order',
   placeholder: 'Leave empty to add at the end',
 };
+const playerRolesField = {
+  name: 'playerRoles',
+  label: 'Player Roles',
+  placeholder: 'Comma-separated, e.g. goalkeeper, defender, forward',
+};
 const matchField = {
   name: 'matchProvided',
   label: 'Played as a match',
@@ -83,13 +88,23 @@ export default function SportTypesPage() {
   const reorderSubTypes = useReorderSubTypes();
 
   /** Sub type being dragged, scoped to its sport so chips can't cross rows. */
-  const [dragging, setDragging] = useState<{ sport: string; subType: string } | null>(null);
+  const [dragging, setDragging] = useState<{
+    sport: string;
+    subType: string;
+  } | null>(null);
 
   const handleDrop = (sport: SportType, target: string) => {
-    if (!dragging || dragging.sport !== sport.value || dragging.subType === target)
+    if (
+      !dragging ||
+      dragging.sport !== sport.value ||
+      dragging.subType === target
+    )
       return;
     reorderSubTypes.mutate(
-      { value: sport.value, subTypes: move(sport.subTypes, dragging.subType, target) },
+      {
+        value: sport.value,
+        subTypes: move(sport.subTypes, dragging.subType, target),
+      },
       opts,
     );
   };
@@ -111,9 +126,7 @@ export default function SportTypesPage() {
 
   const handleRemoveSubType = (sport: SportType, subType: string) => {
     if (
-      window.confirm(
-        `Remove sub type "${subType}" from ${displayName(sport)}?`,
-      )
+      window.confirm(`Remove sub type "${subType}" from ${displayName(sport)}?`)
     )
       removeSubType.mutate({ value: sport.value, subType }, opts);
   };
@@ -165,65 +178,79 @@ export default function SportTypesPage() {
           {
             header: 'Sub Types',
             render: (r) => (
-              <div className="flex flex-wrap items-center gap-1.5">
-                {r.subTypes.map((s) => (
-                  <span
-                    key={s}
-                    draggable={r.subTypes.length > 1}
-                    onDragStart={(e) => {
-                      e.dataTransfer.effectAllowed = 'move';
-                      setDragging({ sport: r.value, subType: s });
-                    }}
-                    onDragOver={(e) => {
-                      if (dragging?.sport === r.value) e.preventDefault();
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      handleDrop(r, s);
-                    }}
-                    onDragEnd={() => setDragging(null)}
-                    className={`flex items-center gap-0.5 rounded-full bg-slate-100 py-1 pr-1 pl-2.5 text-xs font-medium text-slate-600 ${
-                      r.subTypes.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''
-                    } ${
-                      dragging?.sport === r.value && dragging.subType === s
-                        ? 'opacity-40'
-                        : ''
-                    }`}
-                    title={r.subTypes.length > 1 ? 'Drag to reorder' : undefined}
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSubTypeModal({
-                          mode: 'rename',
-                          sport: r,
-                          subType: s,
-                        })
+              <div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {r.subTypes.map((s) => (
+                    <span
+                      key={s}
+                      draggable={r.subTypes.length > 1}
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDragging({ sport: r.value, subType: s });
+                      }}
+                      onDragOver={(e) => {
+                        if (dragging?.sport === r.value) e.preventDefault();
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        handleDrop(r, s);
+                      }}
+                      onDragEnd={() => setDragging(null)}
+                      className={`flex items-center gap-0.5 rounded-full bg-slate-100 py-1 pr-1 pl-2.5 text-xs font-medium text-slate-600 ${
+                        r.subTypes.length > 1
+                          ? 'cursor-grab active:cursor-grabbing'
+                          : ''
+                      } ${
+                        dragging?.sport === r.value && dragging.subType === s
+                          ? 'opacity-40'
+                          : ''
+                      }`}
+                      title={
+                        r.subTypes.length > 1 ? 'Drag to reorder' : undefined
                       }
-                      className="hover:text-pitch-600"
-                      title="Rename"
                     >
-                      {capitalize(s)}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSubType(r, s)}
-                      className="rounded-full p-0.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                      aria-label={`Remove ${s}`}
-                      title="Remove"
-                    >
-                      <IconX className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setSubTypeModal({ mode: 'add', sport: r })}
-                  className="flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-500 hover:border-pitch-500 hover:text-pitch-600"
-                >
-                  <IconPlus className="h-3 w-3" />
-                  Add
-                </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSubTypeModal({
+                            mode: 'rename',
+                            sport: r,
+                            subType: s,
+                          })
+                        }
+                        className="hover:text-pitch-600"
+                        title="Rename"
+                      >
+                        {capitalize(s)}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSubType(r, s)}
+                        className="rounded-full p-0.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        aria-label={`Remove ${s}`}
+                        title="Remove"
+                      >
+                        <IconX className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setSubTypeModal({ mode: 'add', sport: r })}
+                    className="flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-500 hover:border-pitch-500 hover:text-pitch-600"
+                  >
+                    <IconPlus className="h-3 w-3" />
+                    Add
+                  </button>
+                </div>
+                {!!r.playerRoles?.length && (
+                  <div className="mt-2 text-xs text-slate-600">
+                    <span className="font-medium text-slate-400">
+                      Player Roles:{' '}
+                    </span>
+                    {r.playerRoles.map(capitalize).join(', ')}
+                  </div>
+                )}
               </div>
             ),
           },
@@ -245,13 +272,15 @@ export default function SportTypesPage() {
             label: 'Sub Types',
             placeholder: 'Comma-separated, e.g. futsal, stadium',
           },
+          playerRolesField,
           sortOrderField,
           matchField,
         ]}
         // `value` is immutable once created; sub types are edited inline.
-        editFields={[titleField, sortOrderField, matchField]}
+        editFields={[titleField, playerRolesField, sortOrderField, matchField]}
         toValues={(r) => ({
           title: displayName(r),
+          playerRoles: (r.playerRoles ?? []).join(', '),
           sortOrder: String(r.sortOrder),
           matchProvided: r.matchProvided ? 'Yes' : 'No',
         })}
@@ -260,7 +289,8 @@ export default function SportTypesPage() {
             {
               value: v.value.toLowerCase(),
               name: v.title || undefined,
-              subTypes: parseSubTypes(v.subTypes),
+              subTypes: parseList(v.subTypes),
+              playerRoles: parseList(v.playerRoles),
               sortOrder: parseSortOrder(v.sortOrder),
               matchProvided: v.matchProvided !== 'No',
             },
@@ -273,6 +303,7 @@ export default function SportTypesPage() {
               value: row.value,
               input: {
                 name: v.title || undefined,
+                playerRoles: parseList(v.playerRoles),
                 sortOrder: parseSortOrder(v.sortOrder),
                 matchProvided: v.matchProvided !== 'No',
               },

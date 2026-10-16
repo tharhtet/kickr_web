@@ -7,6 +7,8 @@ export interface SportType {
   name?: string;
   /** Formats an event of this sport may set as `subType`, e.g. futsal, stadium. */
   subTypes: string[];
+  /** Positions a player can take in this sport, e.g. goalkeeper, forward. */
+  playerRoles?: string[];
   sortOrder: number;
   /** Whether events of this sport are played as a match. */
   matchProvided: boolean;
@@ -18,6 +20,7 @@ export interface CreateSportTypeInput {
   /** Display name. Defaults to `value`. 409 if another sport has it. */
   name?: string;
   subTypes?: string[];
+  playerRoles?: string[];
   sortOrder?: number;
   matchProvided?: boolean;
 }
@@ -28,6 +31,8 @@ export interface UpdateSportTypeInput {
   name?: string;
   /** Replaces the whole list. */
   subTypes?: string[];
+  /** Replaces the whole list. */
+  playerRoles?: string[];
   sortOrder?: number;
   matchProvided?: boolean;
 }
