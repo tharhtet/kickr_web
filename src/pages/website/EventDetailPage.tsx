@@ -577,8 +577,9 @@ function EventView({ event }: { event: EventDetail }) {
     setLoginOpen(true);
   }, []);
   const spotsLeft = spotsLeftOf(event);
+  const wallpaper = event.group?.wallpaper;
   const summary: ModalSummary = {
-    thumb: event.coverImage ? <img src={event.coverImage} alt="" /> : <PitchCover />,
+    thumb: wallpaper ? <img src={wallpaper} alt="" /> : <PitchCover />,
     title: event.title,
     meta: [
       formatDate(event.date),
@@ -602,8 +603,8 @@ function EventView({ event }: { event: EventDetail }) {
       <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:grid-rows-[auto_1fr] lg:gap-x-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-x-10">
         <div>
           <div className="relative aspect-[958/529] overflow-hidden rounded-3xl bg-[#3a8a45]">
-            {event.coverImage ? (
-              <img src={event.coverImage} alt="" className="h-full w-full object-cover" />
+            {wallpaper ? (
+              <img src={wallpaper} alt="" className="h-full w-full object-cover" />
             ) : (
               <PitchCover />
             )}
